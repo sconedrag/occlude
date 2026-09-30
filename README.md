@@ -1,4 +1,4 @@
-# swiftui-a11y-identifier-audit
+# occlude
 
 Finds SwiftUI views where a **container's `.accessibilityIdentifier` silently erases the
 identifiers of the controls inside it** — the bug that makes an XCUITest report
@@ -47,10 +47,10 @@ property. Plain lexical containment reports nothing on that shape.
 Requires Swift 5.9+ on macOS 13+. It parses source text only; it never builds or imports your app.
 
 ```bash
-git clone https://github.com/sconedrag/swiftui-a11y-identifier-audit
-cd swiftui-a11y-identifier-audit
+git clone https://github.com/sconedrag/occlude
+cd occlude
 swift build -c release
-.build/release/a11y-identifier-audit path/to/View.swift [more.swift …]
+.build/release/occlude path/to/View.swift [more.swift …]
 ```
 
 Exit codes: `0` clean · `1` findings · `2` usage error or an unreadable file (an input it could
@@ -60,7 +60,7 @@ not read is never reported as clean).
 Sources/Composer.swift:11: container identifier "composer" will overwrite its descendants'
 identifiers (composer.field, composer.send) — the view declares no
 .accessibilityElement(children: .contain), so those leaves become unaddressable.
-a11y-identifier-audit: scanned 1 file(s), 1 finding(s)
+occlude: scanned 1 file(s), 1 finding(s)
 ```
 
 ### As a pre-commit check
@@ -71,13 +71,13 @@ Swift files under your UI folder:
 ```bash
 files=$(git diff --cached --name-only --diff-filter=ACM -- '*.swift')
 # Skip when nothing is staged: run with no arguments, the tool exits 2 (usage).
-[ -z "$files" ] || printf '%s\n' "$files" | tr '\n' '\0' | xargs -0 a11y-identifier-audit
+[ -z "$files" ] || printf '%s\n' "$files" | tr '\n' '\0' | xargs -0 occlude
 ```
 
 ## Self-test
 
 ```bash
-.build/release/a11y-identifier-audit --selftest
+.build/release/occlude --selftest
 ```
 
 Runs 15 built-in positive and negative controls, so the check is proved to fail on the defect as

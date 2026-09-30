@@ -241,10 +241,10 @@ func runSelfTest() -> Bool {
     """, expected: 0)
 
     if failures.isEmpty {
-        print("a11y-identifier-audit --selftest: all cases behaved as specified")
+        print("occlude --selftest: all cases behaved as specified")
         return true
     }
-    print("a11y-identifier-audit --selftest FAILED:")
+    print("occlude --selftest FAILED:")
     failures.forEach { print($0) }
     return false
 }

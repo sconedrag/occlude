@@ -1,6 +1,6 @@
 // swift-tools-version: 5.9
 //
-// swiftui-a11y-identifier-audit — finds a SwiftUI container whose `.accessibilityIdentifier`
+// occlude — finds a SwiftUI container whose `.accessibilityIdentifier`
 // overwrites its descendants' identifiers because the view never declares
 // `.accessibilityElement(children: .contain)`.
 //
@@ -24,25 +24,25 @@
 import PackageDescription
 
 let package = Package(
-    name: "swiftui-a11y-identifier-audit",
+    name: "occlude",
     platforms: [.macOS(.v13)],
     products: [
-        .executable(name: "a11y-identifier-audit", targets: ["a11y-identifier-audit"])
+        .executable(name: "occlude", targets: ["occlude"])
     ],
     dependencies: [
         .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "510.0.0"),
     ],
     targets: [
         .executableTarget(
-            name: "a11y-identifier-audit",
+            name: "occlude",
             dependencies: [
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftParser", package: "swift-syntax"),
             ],
-            path: "Sources/a11y-identifier-audit"
+            path: "Sources/occlude"
         ),
-        // Tests are built into the binary: `a11y-identifier-audit --selftest` runs positive and
-        // negative controls (see Sources/a11y-identifier-audit/SelfTest.swift), so the check can
+        // Tests are built into the binary: `occlude --selftest` runs positive and
+        // negative controls (see Sources/occlude/SelfTest.swift), so the check can
         // be proved to FAIL on the defect and PASS on its look-alikes without an XCTest harness.
     ]
 )

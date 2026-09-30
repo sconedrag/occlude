@@ -1,8 +1,8 @@
-// a11y-identifier-audit — reports containers whose `.accessibilityIdentifier` will overwrite
+// occlude — reports containers whose `.accessibilityIdentifier` will overwrite
 // their descendants'.
 //
-//   a11y-identifier-audit <file.swift> [more.swift …]
-//   a11y-identifier-audit --selftest
+//   occlude <file.swift> [more.swift …]
+//   occlude --selftest
 //
 // Exits 1 when it finds something, 0 when clean, 2 on a usage/IO error. It only analyses the files
 // it is handed — choosing which files to scan (all views, staged files only, …) belongs to the
@@ -13,8 +13,8 @@ let args = Array(CommandLine.arguments.dropFirst())
 
 guard !args.isEmpty else {
     FileHandle.standardError.write(Data("""
-        usage: a11y-identifier-audit <file.swift> [...]
-               a11y-identifier-audit --selftest
+        usage: occlude <file.swift> [...]
+               occlude --selftest
 
         Reports a container .accessibilityIdentifier that overwrites its descendants'
         because the view declares no .accessibilityElement(children: .contain).
@@ -44,7 +44,7 @@ for path in args {
 // A file we could not read is NOT a clean file. Reporting "0 findings" while silently skipping
 // inputs is the shape that makes a gate look green while checking nothing.
 if !unreadable.isEmpty {
-    let detail = "a11y-identifier-audit: could not read \(unreadable.count) file(s):\n"
+    let detail = "occlude: could not read \(unreadable.count) file(s):\n"
         + unreadable.map { "  \($0)\n" }.joined()
     FileHandle.standardError.write(Data(detail.utf8))
     exit(2)
@@ -53,5 +53,5 @@ if !unreadable.isEmpty {
 for finding in findings.sorted(by: { ($0.file, $0.line) < ($1.file, $1.line) }) {
     print(finding.message)
 }
-print("a11y-identifier-audit: scanned \(args.count) file(s), \(findings.count) finding(s)")
+print("occlude: scanned \(args.count) file(s), \(findings.count) finding(s)")
 exit(findings.isEmpty ? 0 : 1)
