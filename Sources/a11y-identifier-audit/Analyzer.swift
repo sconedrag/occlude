@@ -38,7 +38,7 @@ struct Finding {
     }
 }
 
-/// Detects the D-UIT.2 shape via the syntax tree.
+/// Detects the identifier-erasure shape via the syntax tree.
 ///
 /// The two things text could not do, and this does:
 ///   * it asks whether the leaf identifier is inside the expression the container identifier is

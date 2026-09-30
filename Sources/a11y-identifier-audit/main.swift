@@ -1,12 +1,12 @@
 // a11y-identifier-audit — reports containers whose `.accessibilityIdentifier` will overwrite
-// their descendants' (D-UIT.2).
+// their descendants'.
 //
 //   a11y-identifier-audit <file.swift> [more.swift …]
 //   a11y-identifier-audit --selftest
 //
-// Exits 1 when it finds something, 0 when clean, 2 on a usage/IO error. The Python wrapper
-// (scripts/audit_accessibility_identifier_erasure.py) owns scope selection and the pre-commit
-// wiring; this binary only analyses the files it is handed, so it stays testable in isolation.
+// Exits 1 when it finds something, 0 when clean, 2 on a usage/IO error. It only analyses the files
+// it is handed — choosing which files to scan (all views, staged files only, …) belongs to the
+// caller, e.g. a pre-commit hook — so it stays testable in isolation.
 import Foundation
 
 let args = Array(CommandLine.arguments.dropFirst())
@@ -34,7 +34,6 @@ var unreadable: [String] = []
 for path in args {
     // An unreadable path is collected in `unreadable`; the run then writes the full list to
     // stderr and exits 2 (below), which is a louder signal than a log line would be.
-    // silent-ok: collected in `unreadable`, reported to stderr with exit 2 below
     guard let source = try? String(contentsOfFile: path, encoding: .utf8) else {
         unreadable.append(path)
         continue

@@ -232,7 +232,7 @@ func runSelfTest() -> Bool {
     """, expected: 1)
 
     // ---- Recursion safety ---------------------------------------------------------------------
-    // A self-referencing member must terminate rather than hang the pre-commit hook.
+    // A self-referencing member must terminate rather than hang a pre-commit hook.
     check("self-referencing member terminates", """
     struct V: View {
         var body: some View { row.accessibilityIdentifier("a.\\(id)") }
