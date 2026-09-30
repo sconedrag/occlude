@@ -1,0 +1,58 @@
+// a11y-identifier-audit — reports containers whose `.accessibilityIdentifier` will overwrite
+// their descendants' (D-UIT.2).
+//
+//   a11y-identifier-audit <file.swift> [more.swift …]
+//   a11y-identifier-audit --selftest
+//
+// Exits 1 when it finds something, 0 when clean, 2 on a usage/IO error. The Python wrapper
+// (scripts/audit_accessibility_identifier_erasure.py) owns scope selection and the pre-commit
+// wiring; this binary only analyses the files it is handed, so it stays testable in isolation.
+import Foundation
+
+let args = Array(CommandLine.arguments.dropFirst())
+
+guard !args.isEmpty else {
+    FileHandle.standardError.write(Data("""
+        usage: a11y-identifier-audit <file.swift> [...]
+               a11y-identifier-audit --selftest
+
+        Reports a container .accessibilityIdentifier that overwrites its descendants'
+        because the view declares no .accessibilityElement(children: .contain).
+
+        """.utf8))
+    exit(2)
+}
+
+if args.contains("--selftest") {
+    exit(runSelfTest() ? 0 : 1)
+}
+
+let analyzer = IdentifierErasureAnalyzer()
+var findings: [Finding] = []
+var unreadable: [String] = []
+
+for path in args {
+    // An unreadable path is collected in `unreadable`; the run then writes the full list to
+    // stderr and exits 2 (below), which is a louder signal than a log line would be.
+    // silent-ok: collected in `unreadable`, reported to stderr with exit 2 below
+    guard let source = try? String(contentsOfFile: path, encoding: .utf8) else {
+        unreadable.append(path)
+        continue
+    }
+    findings += analyzer.analyze(source: source, fileName: path)
+}
+
+// A file we could not read is NOT a clean file. Reporting "0 findings" while silently skipping
+// inputs is the shape that makes a gate look green while checking nothing.
+if !unreadable.isEmpty {
+    let detail = "a11y-identifier-audit: could not read \(unreadable.count) file(s):\n"
+        + unreadable.map { "  \($0)\n" }.joined()
+    FileHandle.standardError.write(Data(detail.utf8))
+    exit(2)
+}
+
+for finding in findings.sorted(by: { ($0.file, $0.line) < ($1.file, $1.line) }) {
+    print(finding.message)
+}
+print("a11y-identifier-audit: scanned \(args.count) file(s), \(findings.count) finding(s)")
+exit(findings.isEmpty ? 0 : 1)
